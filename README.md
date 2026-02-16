@@ -11,15 +11,6 @@
 
 This is a simple workflow example that uses this action.
 
-Prerequisites:
-  * `serverpod generate` has been run and the generated files are committed
-
-  * `scloud.yaml` is committed in the server package
-    > (create this with `scloud launch` or `scloud link`)
-
-  * A GitHub secret has been set with the access token
-    > (create this with `scloud auth create-token`)
-
 ```yml
 name: Automated Serverpod Cloud deploy
 
@@ -38,10 +29,22 @@ jobs:
 
       - uses: dart-lang/setup-dart@v1
 
-      - uses: serverpod/serverpod-cloud-deploy@v0.1
+      - uses: serverpod/serverpod-cloud-deploy@v0.3
         with:
           token: ${{ secrets.MY_SERVERPOD_CLOUD_ACCESS_TOKEN }}
 ```
+
+Prerequisites:
+  * A GitHub secret has been set containing the access token
+    > (create a token with `scloud auth create-token`)
+
+  * `serverpod generate` has been run and the generated files are committed
+
+  * `scloud.yaml` is committed in the server package
+    > (create this file with `scloud launch` or `scloud link`)
+
+  * The repository has only one Serverpod project and it is no more than two
+    subdirectory levels down from the root
 
 
 ## Inputs
@@ -65,8 +68,8 @@ The action takes the following inputs:
 
 ## Combine with serverpod generate
 
-The following example does not requires the generated serverpod files to be
-committed nor the scloud.yaml file to be available.
+The following workflow example does not requires the generated serverpod files
+to be committed nor the scloud.yaml file to be available.
 
 ```yml
 name: Automated Serverpod Cloud generate & deploy
@@ -77,39 +80,40 @@ description: >
 on:
   push:
     branches: ["main"]
-    paths:
-      # Only redeploy on changes in the server directory
-      - 'packages/my_server/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+env:
+  # Change these values according to your project
+  PROJECT_ID: my-project-id
+  SERVER_DIR: ./packages/my_server
+  CLOUD_TOKEN: ${{ secrets.MY_SERVERPOD_CLOUD_ACCESS_TOKEN }}
+
 jobs:
-  generate:
+  generate-and-deploy:
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-        - name: Setup Flutter SDK
-          uses: subosito/flutter-action@v2
-          with:
-            # Picks the latest stable version. Some may want to pin the version instead.
-            channel: stable
-            cache: true
-
-        - name: Run serverpod generate
-          working-directory: ./packages/my_server
-          # Automatically picks the used Serverpod version from dependencies
-          run: dart run serverpod_cli generate
-
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: serverpod/serverpod-cloud-deploy@v0.1
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
         with:
-          token: ${{ secrets.MY_SERVERPOD_CLOUD_ACCESS_TOKEN }}
-          project_id: my-project-id
-          project_dir: ./packages/my_server
+          # Picks the latest stable version. Some may want to pin the version instead.
+          channel: stable
+          cache: true
+
+      - name: Run serverpod generate
+        working-directory: ${{ env.SERVER_DIR }}
+        # Automatically picks the used Serverpod version from dependencies
+        run: dart run serverpod_cli generate
+
+      - uses: serverpod/serverpod_cloud_deploy@v0.3
+        with:
+          token: ${{ env.CLOUD_TOKEN }}
+          project_id: ${{ env.PROJECT_ID }}
+          project_dir: ${{ env.SERVER_DIR }}
 ```
 
 
