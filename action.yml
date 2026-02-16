@@ -1,6 +1,10 @@
 name: serverpod-cloud-deploy
 description: Deploys a project to Serverpod Cloud
 
+branding:
+  icon: upload-cloud
+  color: blue
+
 inputs:
   token:
     description: "Serverpod Cloud access token"
