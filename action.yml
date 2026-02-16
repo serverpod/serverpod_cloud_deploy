@@ -1,0 +1,37 @@
+name: serverpod-cloud-deploy
+description: Deploys a project to Serverpod Cloud
+
+inputs:
+  token:
+    description: "Serverpod Cloud access token"
+    required: true
+  working_directory:
+    description: "Path to the action's working directory"
+    default: "."
+  project_id:
+    description: "Tenant project ID"
+    default: ""
+  project_dir:
+    description: "Path to the project's server directory"
+    default: ""
+  project_config_file:
+    description: "Path to the project's configuration file"
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Activate scloud CLI"
+      shell: sh
+      run: dart pub global activate serverpod_cloud_cli
+
+    - name: "Deploy to Serverpod Cloud"
+      working-directory: ${{ inputs.working_directory }}
+      shell: sh
+      env:
+        SERVERPOD_CLOUD_TOKEN: ${{ inputs.token }}
+      run: |-
+        [ -n "${{ inputs.project_id }}" ] && export SERVERPOD_CLOUD_PROJECT_ID="${{ inputs.project_id }}"
+        [ -n "${{ inputs.project_dir }}" ] && export SERVERPOD_CLOUD_PROJECT_DIR="${{ inputs.project_dir }}"
+        [ -n "${{ inputs.project_config_file }}" ] && export SERVERPOD_CLOUD_PROJECT_CONFIG_FILE="${{ inputs.project_config_file }}"
+        scloud deploy
