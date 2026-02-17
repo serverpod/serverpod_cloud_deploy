@@ -10,5 +10,6 @@
 project:
   projectId: "test-action-committed-project"
   scripts:
-    pre_deploy: []
+    pre_deploy:
+      - "serverpod run flutter_build"
     post_deploy: []

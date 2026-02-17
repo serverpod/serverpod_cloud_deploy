@@ -27,7 +27,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dart-lang/setup-dart@v1
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+
+      - name: Activate serverpod command
+        run: dart pub global activate serverpod_cli
 
       - uses: serverpod/serverpod-cloud-deploy@v1
         with:
