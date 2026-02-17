@@ -102,10 +102,6 @@ jobs:
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
-        with:
-          # Picks the latest stable version. Some may want to pin the version instead.
-          channel: stable
-          cache: true
 
       - name: Run serverpod generate
         working-directory: ${{ env.SERVER_DIR }}
