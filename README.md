@@ -29,7 +29,7 @@ jobs:
 
       - uses: dart-lang/setup-dart@v1
 
-      - uses: serverpod/serverpod-cloud-deploy@v0.3
+      - uses: serverpod/serverpod-cloud-deploy@v1
         with:
           token: ${{ secrets.MY_SERVERPOD_CLOUD_ACCESS_TOKEN }}
 ```
@@ -110,7 +110,7 @@ jobs:
           dart pub global activate serverpod_cli
           serverpod generate
 
-      - uses: serverpod/serverpod_cloud_deploy@v0.3
+      - uses: serverpod/serverpod_cloud_deploy@v1
         with:
           token: ${{ env.CLOUD_TOKEN }}
           project_id: ${{ env.PROJECT_ID }}
