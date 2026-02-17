@@ -27,9 +27,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dart-lang/setup-dart@v1
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
 
-      - uses: serverpod/serverpod-cloud-deploy@v0.3
+      - name: Activate serverpod command
+        run: dart pub global activate serverpod_cli
+
+      - uses: serverpod/serverpod-cloud-deploy@v1
         with:
           token: ${{ secrets.MY_SERVERPOD_CLOUD_ACCESS_TOKEN }}
 ```
@@ -80,7 +84,6 @@ description: >
 on:
   push:
     branches: ["main"]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -99,17 +102,15 @@ jobs:
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
-        with:
-          # Picks the latest stable version. Some may want to pin the version instead.
-          channel: stable
-          cache: true
 
       - name: Run serverpod generate
         working-directory: ${{ env.SERVER_DIR }}
-        # Automatically picks the used Serverpod version from dependencies
-        run: dart run serverpod_cli generate
+        run: |
+          dart pub get
+          dart pub global activate serverpod_cli
+          serverpod generate
 
-      - uses: serverpod/serverpod_cloud_deploy@v0.3
+      - uses: serverpod/serverpod_cloud_deploy@v1
         with:
           token: ${{ env.CLOUD_TOKEN }}
           project_id: ${{ env.PROJECT_ID }}
