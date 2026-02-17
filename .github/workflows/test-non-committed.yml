@@ -1,0 +1,47 @@
+name: Automated Serverpod Cloud generate & deploy
+description: >
+  Checks out the repository, sets up Flutter, runs serverpod generate,
+  and deploys to Serverpod Cloud.
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Change these values according to your project
+  PROJECT_ID: test-action-non-committed-proj
+  SERVER_DIR: ./test/non_committed/non_committed_server
+  CLOUD_TOKEN: ${{ secrets.MY_SERVERPOD_CLOUD_ACCESS_TOKEN }}
+
+jobs:
+  generate-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          # Picks the latest stable version. Some may want to pin the version instead.
+          channel: stable
+          cache: true
+
+      - name: Run serverpod generate
+        working-directory: ${{ env.SERVER_DIR }}
+        run: |
+          dart pub get
+          dart pub global activate serverpod_cli 3.1.1
+          serverpod generate
+
+      - uses: ./ # Directly use the action
+        with:
+          token: ${{ env.CLOUD_TOKEN }}
+          project_id: ${{ env.PROJECT_ID }}
+          project_dir: ${{ env.SERVER_DIR }}

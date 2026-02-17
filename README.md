@@ -80,7 +80,6 @@ description: >
 on:
   push:
     branches: ["main"]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -106,8 +105,10 @@ jobs:
 
       - name: Run serverpod generate
         working-directory: ${{ env.SERVER_DIR }}
-        # Automatically picks the used Serverpod version from dependencies
-        run: dart run serverpod_cli generate
+        run: |
+          dart pub get
+          dart pub global activate serverpod_cli
+          serverpod generate
 
       - uses: serverpod/serverpod_cloud_deploy@v0.3
         with:
