@@ -1,0 +1,25 @@
+name: Automated Serverpod Cloud deploy
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+
+      - uses: ./ # Directly use the action
+        with:
+          token: ${{ secrets.MY_SERVERPOD_CLOUD_ACCESS_TOKEN }}
+          working_directory: ./test/committed/committed_server
